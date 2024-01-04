@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Student Enrollment Form</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://login2explore.com/jpdb/resources/js/0.0.3/jpdb-commons.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h2 class="text-center">Student Enrollment Form</h2>
+      <form id="stuForm" method="post">
+        <div class="form-group">
+          <label for="stuId">Roll-No:</label>
+          <input
+            type="text"
+            class="form-control"
+            onchange="getStu()"
+            name="stuId"
+            id="stuId"
+            placeholder="Enter Roll-No"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="stuName">Student Full Name:</label>
+          <input
+            type="text"
+            class="form-control"
+            id="stuName"
+            placeholder="Enter Full Name"
+            name="stuName"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="stuClass">Class:</label>
+          <input
+            type="text"
+            class="form-control"
+            id="stuClass"
+            placeholder="Enter Class"
+            name="stuClass"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="stuDOB">Birth-Date:</label>
+          <input
+            type="date"
+            class="form-control"
+            id="stuDOB"
+            placeholder="Enter Birth-Date"
+            name="stuDOB"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="stuAddress">Address:</label>
+          <input
+            type="text"
+            class="form-control"
+            id="stuAddress"
+            placeholder="Enter Address"
+            name="stuAddress"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="stuEnrollDate">Enrollment-Date:</label>
+          <input
+            type="date"
+            class="form-control"
+            id="stuEnrollDate"
+            placeholder="Enter Enrollment-Date"
+            name="stuEnrollDate"
+          />
+        </div>
+
+        <div class="text-center">
+          <input
+            type="button"
+            class="btn btn-primary"
+            id="empSave"
+            value="Save"
+            onclick="saveData();"
+          />
+          <input
+            type="button"
+            class="btn btn-primary"
+            id="empChange"
+            value="Change"
+            onclick="changeData();"
+          />
+          <input
+            type="button"
+            class="btn btn-primary"
+            id="empReset"
+            value="Reset"
+            onClick="resetForm()"
+          />
+        </div>
+      </form>
+    </div>
+    <style>
+      body {
+        background-color: #f0f0f0;
+      }
+      .container {
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      h2 {
+        color: #333;
+      }
+      .form-group label {
+        color: #333;
+      }
+      .form-control {
+        border: 2px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+      }
+      .btn-primary {
+        background-color: #007bff;
+        border: none;
+      }
+      .btn-primary:hover {
+        background-color: #0056b3;
+      }
+    </style>
+    <script>
+        function validateAndGetFormData() {
+          var stuIdVar = $("#stuId").val();
+          if (stuIdVar === "") {
+            alert("Student Roll-No Required Value");
+            $("#stuId").focus();
+            return "";
+          }
+          var stuNameVar = $("#stuName").val();
+          if (stuNameVar === "") {
+            alert("Student Name is Required Value");
+            $("#stuName").focus();
+            return "";
+          }
+          var stuClassVar = $("#stuClass").val();
+          if (stuClassVar === "") {
+            alert("Student Class is Required Value");
+            $("#stuClass").focus();
+            return "";
+          }
+  
+          var stuDOBVar = $("#stuDOB").val();
+          if (stuDOBVar === "") {
+            alert("Student Birth-Date is Required Value");
+            $("stuDOB").focus();
+            return "";
+          }
+  
+          var stuAddressVar = $("#stuAddress").val();
+          if (stuAddressVar === "") {
+            alert("Student Address is Required Value");
+            $("#stuAddress").focus();
+            return "";
+          }
+  
+          var stuEnrollDateVar = $("stuEnrollDate").val();
+          if (stuEnrollDateVar === "") {
+            alert("Student Enrollment-Date is Required Value");
+            $("stuEnrollDate").focus();
+            return "";
+          }
+  
+          var jsonStrObj = {
+            stuId: stuIdVar,
+            stuName: stuNameVar,
+            stuClass: stuClassVar,
+            stuDOB: stuDOBVar,
+            stuAddress: stuAddressVar,
+            stuEnrollDate: stuEnrollDateVar,
+          };
+          return JSON.stringify(jsonStrObj);
+        }
+  
+        function getstuIdASJsonObj() {
+          var stuid = $("#stuid").val();
+          var jsonStr = {
+            id: stuid,
+          };
+          return JSON.stringify(jsonStr);
+        }
+  
+        function getStu() {
+          var stuIdJsonObj = getstuIdASJsonObj();
+          var getRequest = createGET_BY_KEYRequest(
+            connToken,
+            stuDBName,
+            stuRelationName,
+            stuIdJsonObj
+          );
+          jQuery.ajaxSetup({ async: false });
+          var resJsonObj = executeCommandAtGivenBaseUrl(
+            getRequest,
+            jpdbBaseURL,
+            jpdbURL
+          );
+          jQuery.ajaxSetup({ async: true });
+          if (resJsonObj.status === 400) {
+            $("#save").prop("disabled", flase);
+            $("#reset").prop("disabled", false);
+            $("#stuname").focus();
+          } else if (resJsonObj.status === 200) {
+            $("#stuid").prop("disabled", true);
+            fillData(resJsonObj);
+            $("#change").prop("disabled", false);
+            $("#reset").prop("disabled", false);
+            $("#stuname").focus();
+          }
+        }
+  
+        function resetForm() {
+          $("#stuId").val("");
+          $("#stuName").val("");
+          $("#stuClass").val("");
+          $("#stuDOB").val("");
+          $("#stuAddress").val("");
+          $("#stuEnrollDate").val("");
+          $("#stuId").focus();
+        }
+  
+        function changeData() {
+          $("#change").prop("disabled", true);
+          jsonChg = validateData();
+          var updateRequest = createUPDATERecordRequest(
+            ConnToken,
+            jsonChg,
+            stuDBName,
+            stuRelationName,
+            localStorage.getItem("recno")
+          );
+          jQuery.ajaxSetup({ async: falses });
+          var resJsonObj = executeCommandAtGivenBaseUrl(
+            updateRequest.jpdBaseURL,
+            jpdbIML
+          );
+          jQuery.ajaxSetup({ async: true });
+          console.log(resJsonObj);
+          resetForm();
+          $("#stuID").focus();
+        }
+  
+        function saveData() {
+   
+  
+          var jsonStr = validateAndGetFormData();
+          if (jsonStr === "") {
+            return;
+          }
+          var putReqStr = createPUTRequest(
+            "90931559|-31949330622888525|90959941",
+            jsonStr,
+            "SCHOOL-DB",
+            "STUDENT-TABLE"
+          );
+  
+          alert(putReqStr);
+  
+          jQuery.ajaxSetup({ async: false });
+          var resultObj = executeCommandAtGivenBaseUrl(
+            putReqStr,
+            "http://api.login2explore.com:5577",
+            "/api/iml"
+          );
+          jQuery.ajaxSetup({ async: true });
+  
+          alert(JSON.stringify(resultObj));
+          resetForm();
+        }
+      </script>
+  </body>
+</html>
